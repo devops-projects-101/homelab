@@ -23,7 +23,7 @@ INSTALL_DIR="/opt/homelab"
 echo "Cloning homelab repository..."
 if [ ! -d "$INSTALL_DIR" ]; then
     mkdir -p "$INSTALL_DIR"
-    git clone https://github.com/Kabilarajah/homelab.git "$INSTALL_DIR"
+    git clone https://github.com/devops-projects-101/homelab.git "$INSTALL_DIR"
     
     # Check if clone was successful
     if [ $? -ne 0 ]; then
