@@ -4,15 +4,13 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: kind-homelab-cluster
 networking: 
   apiServerAddress: "127.0.0.1"
-  apiServerPort: 8889 # This specifies the port *inside* the control plane container if you omit extraPortMappings.
-                      # However, with extraPortMappings, it's about what the control plane *thinks* its accessible port is.
-                      # For clarity, let's keep extraPortMappings for the host exposure.
+  apiServerPort: 6443 # Use default Kubernetes API port
 nodes:
 - role: control-plane
   image: kindest/node:v1.28.0
   extraPortMappings:
   - containerPort: 6443
-    hostPort: 8889
+    hostPort: 9443     # Changed from 8889 to 9443 to avoid port conflicts
     listenAddress: "127.0.0.1" # Listen on localhost, or "0.0.0.0" for all interfaces
     protocol: TCP
 - role: worker

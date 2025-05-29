@@ -1,22 +1,29 @@
 #!/bin/bash
 
 # Define colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
 AMBER='\033[0;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-CONTROL_PLANE_NAME="kind-control-plane"
+CLUSTER_NAME="kind-homelab-cluster"
+CONTROL_PLANE_NAME="$CLUSTER_NAME-control-plane"
 
-# Check if the kind-control-plane container is running
+# Check if the control-plane container is running
 if docker ps --format '{{.Names}}' | grep -q "^${CONTROL_PLANE_NAME}$"; then
-    echo "Kubernetes control plane (${CONTROL_PLANE_NAME}) found and running."
+    echo -e "${GREEN}Kubernetes control plane (${CONTROL_PLANE_NAME}) found and running.${NC}"
 
     # Extract the HostPort for the Kubernetes API server (6443/tcp inside container)
     HOST_PORT=$(docker inspect ${CONTROL_PLANE_NAME} | \
                 jq -r '.[].NetworkSettings.Ports."6443/tcp"[0].HostPort')
 
     if [ -n "$HOST_PORT" ]; then
-        echo "Kubernetes API server HostPort: ${HOST_PORT}"
-        echo "Auto-configuring kubectl (this is usually handled by 'kind'):"
+        echo -e "${BLUE}Kubernetes API server HostPort: ${HOST_PORT}${NC}"
+        echo -e "${BLUE}Setting up kubectl configuration...${NC}"
+        
+        # Create kubectl config directory if it doesn't exist
+        mkdir -p ~/.kube
 
         # Note: 'kind get kubeconfig' is the recommended way to get the kubeconfig
         # and it handles merging it into your ~/.kube/config.
