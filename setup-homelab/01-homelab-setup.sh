@@ -1,13 +1,6 @@
 #!/bin/bash
 
-# Colors for better readability
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-echo -e "${GREEN}Starting Homelab Setup...${NC}"
+echo "Starting Homelab Setup..."
 
 # Function to check if a command exists
 command_exists() {
@@ -16,21 +9,21 @@ command_exists() {
 
 # Check if we're running as root
 if [ "$(id -u)" -ne 0 ]; then
-    echo -e "${RED}This script must be run as root. Please use sudo.${NC}"
+    echo "This script must be run as root. Please use sudo."
     exit 1
 fi
 
 # Set hostname to 'homelab'
-echo -e "${BLUE}Setting hostname to 'homelab'...${NC}"
+echo "Setting hostname to 'homelab'..."
 hostnamectl set-hostname homelab
 echo "127.0.0.1 homelab" >> /etc/hosts
 
 # Update system packages
-echo -e "${BLUE}Updating system packages...${NC}"
+echo "Updating system packages..."
 apt-get update && apt-get upgrade -y
 
 # Install prerequisites
-echo -e "${BLUE}Installing required packages...${NC}"
+echo "Installing required packages..."
 apt-get install -y \
     curl \
     wget \
@@ -40,18 +33,18 @@ apt-get install -y \
     ufw
 
 # Check if 'homelab' user exists, create if it doesn't
-echo -e "${BLUE}Checking for 'homelab' user...${NC}"
+echo "Checking for 'homelab' user..."
 if id "homelab" &>/dev/null; then
-    echo -e "${GREEN}User 'homelab' already exists.${NC}"
+    echo "User 'homelab' already exists."
 else
-    echo -e "${YELLOW}Creating 'homelab' user...${NC}"
+    echo "Creating 'homelab' user..."
     useradd -m -s /bin/bash -G sudo homelab
-    echo -e "${YELLOW}Please set password for 'homelab' user:${NC}"
+    echo "Please set password for 'homelab' user:"
     passwd homelab
 fi
 
 # Configure SSH
-echo -e "${BLUE}Configuring SSH...${NC}"
+echo "Configuring SSH..."
 # Backup the original sshd_config
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
@@ -85,11 +78,11 @@ EOL
 systemctl restart sshd
 
 # Disable UFW (firewall)
-echo -e "${BLUE}Disabling firewall...${NC}"
+echo "Disabling firewall..."
 ufw disable
 
 # Install CasaOS
-echo -e "${BLUE}Installing CasaOS...${NC}"
+echo "Installing CasaOS..."
 curl -fsSL https://get.casaos.io | sudo bash
 
 # Define paths
@@ -97,11 +90,11 @@ HOMELAB_DIR="/opt/homelab"
 K8S_SETUP_DIR="$HOMELAB_DIR/setup-kubernetes"
 
 # Ensure proper ownership of homelab directory
-echo -e "${BLUE}Setting proper ownership for homelab directory...${NC}"
+echo "Setting proper ownership for homelab directory..."
 chown -R homelab:homelab "$HOMELAB_DIR"
 
 # Run Kubernetes setup
-echo -e "${BLUE}Starting Kubernetes setup...${NC}"
+echo "Starting Kubernetes setup..."
 if [ -d "$K8S_SETUP_DIR" ]; then
     # Make Kubernetes setup scripts executable
     chmod +x "$K8S_SETUP_DIR"/*.sh
@@ -113,24 +106,24 @@ if [ -d "$K8S_SETUP_DIR" ]; then
         if [ $? -eq 0 ]; then
             "$K8S_SETUP_DIR/kubectl_configure.sh"
         else
-            echo -e "${RED}Failed to create Kubernetes cluster. Continuing with setup...${NC}"
+            echo "Failed to create Kubernetes cluster. Continuing with setup..."
         fi
     else
-        echo -e "${RED}Failed to install Kind. Continuing with setup...${NC}"
+        echo "Failed to install Kind. Continuing with setup..."
     fi
 else
-    echo -e "${RED}Kubernetes setup directory not found at $K8S_SETUP_DIR. Skipping Kubernetes setup...${NC}"
+    echo "Kubernetes setup directory not found at $K8S_SETUP_DIR. Skipping Kubernetes setup..."
 fi
 
-echo -e "${GREEN}Setup complete!${NC}"
-echo -e "${GREEN}Your homelab system has been configured with:${NC}"
-echo -e "  - Hostname: homelab"
-echo -e "  - User: homelab"
-echo -e "  - CasaOS installed"
-echo -e "  - SSH configured"
-echo -e "  - Firewall disabled"
+echo "Setup complete!"
+echo "Your homelab system has been configured with:"
+echo "  - Hostname: homelab"
+echo "  - User: homelab"
+echo "  - CasaOS installed"
+echo "  - SSH configured"
+echo "  - Firewall disabled"
 if [ -d "$K8S_SETUP_DIR" ]; then
-    echo -e "  - Kubernetes setup (if successful)"
+    echo "  - Kubernetes setup (if successful)"
 fi
-echo -e "${YELLOW}You can access CasaOS at http://homelab:80${NC}"
-echo -e "${YELLOW}or http://$(hostname -I | awk '{print $1}'):80${NC}"
+echo "You can access CasaOS at http://homelab:80"
+echo "or http://$(hostname -I | awk '{print $1}'):80"
