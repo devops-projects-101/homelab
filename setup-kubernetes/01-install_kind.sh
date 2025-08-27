@@ -4,6 +4,7 @@ apt-get update
 apt-get install -y \
     ca-certificates \
     curl \
+    jq \
     gnupg \
     lsb-release \
     git
